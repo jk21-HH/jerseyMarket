@@ -34,7 +34,16 @@ export class Auth {
       .pipe(tap((res) => this.applySession(res)));
   }
 
-  logout(): void {
+  // notifies the backend to revoke the refresh token, then always clears local session state
+  logout(): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/logout`, {}).pipe(
+      catchError(() => of(undefined)),
+      tap(() => this.clearSession()),
+      map(() => undefined),
+    );
+  }
+
+  private clearSession(): void {
     this.accessTokenSignal.set(null);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(USER_ID_KEY);
@@ -58,7 +67,7 @@ export class Auth {
         tap((res) => this.applySession(res)),
         map(() => true),
         catchError(() => {
-          this.logout();
+          this.clearSession();
           return of(false);
         }),
       );

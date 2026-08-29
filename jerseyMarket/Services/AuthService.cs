@@ -14,11 +14,11 @@ using jerseyMarket.Models;
 
 namespace jerseyMarket.Services
 {
-    public class AuthService(AppDbContext context, IConfiguration configuration) : IAuthService
+    public class AuthService(AppDbContext _context, IConfiguration configuration) : IAuthService
     {
         public async Task<(RegisterResult Result, UserResponseDto? User)> RegisterAsync(UserRegisterRequestDto request)
         {
-            if (await context.Users.AnyAsync(u => u.Username == request.Username))
+            if (await _context.Users.AnyAsync(u => u.Username == request.Username))
             {
                 return (RegisterResult.UsernameTaken, null);
             }
@@ -31,8 +31,8 @@ namespace jerseyMarket.Services
             user.Username = request.Username;
             user.Password = hashedPasswords;
 
-            context.Users.Add(user);
-            await context.SaveChangesAsync();
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
 
             return (RegisterResult.Success, new UserResponseDto
             {
@@ -43,7 +43,7 @@ namespace jerseyMarket.Services
 
         public async Task<AccessTokenRefreshTokenResponseDto?> LoginAsync(UserLoginRequestDto request)
         {
-            var user = await context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
 
             if (user == null)
             {
@@ -73,8 +73,22 @@ namespace jerseyMarket.Services
             return await BuildAccessTokenRefreshTokenResponseAsync(user);
         }
 
+        public async Task LogoutAsync(int userId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+
+            if (user == null)
+            {
+                return;
+            }
+
+            RevokeSessions(user);
+            await _context.SaveChangesAsync();
+        }
+
         private async Task<AccessTokenRefreshTokenResponseDto?> BuildAccessTokenRefreshTokenResponseAsync(User user)
         {
+            // generate a new access token and refresh token for the user
             return new AccessTokenRefreshTokenResponseDto
             {
                 AccessToken = GenerateAccessToken(user),
@@ -84,10 +98,11 @@ namespace jerseyMarket.Services
 
         private string GenerateAccessToken(User user)
         {
+            // short claim names so the token stays compact and the payload is easy to read
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
+                new Claim(JwtRegisteredClaimNames.NameId, user.UserId.ToString()),
             };
 
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
@@ -107,6 +122,7 @@ namespace jerseyMarket.Services
         }
         private async Task<string> GenerateRefreshTokenAsync(User user)
         {
+            // generate a random refresh token
             var randomNumber = new byte[32];
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomNumber);
@@ -117,14 +133,15 @@ namespace jerseyMarket.Services
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
             user.LastLogin = DateTime.UtcNow;
 
-            await context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return refreshToken;
         }
 
         private async Task<User?> ValidateRefreshTokenAsync(int userId, string refreshToken)
         {
-            var user = await context.Users.FindAsync(userId);
+            // validate the refresh token for the user
+            var user = await _context.Users.FindAsync(userId);
 
             if (user == null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
             {
@@ -132,6 +149,13 @@ namespace jerseyMarket.Services
             }
 
             return user;
+        }
+
+        private static void RevokeSessions(User user)
+        {
+            // nullify the refresh token and set its expiry time to the past - cause logout
+            user.RefreshToken = null;
+            user.RefreshTokenExpiryTime = DateTime.MinValue;
         }
     }
 }
