@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 using jerseyMarket.Dtos;
 using jerseyMarket.Enums;
@@ -23,6 +24,7 @@ namespace jerseyMarket.Controllers
             };
         }
 
+        [EnableRateLimiting("login")]
         [HttpPost("login")]
         public async Task<ActionResult<AccessTokenRefreshTokenResponseDto>> Login(UserLoginRequestDto request)
         {

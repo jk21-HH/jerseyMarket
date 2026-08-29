@@ -1,4 +1,5 @@
 using jerseyMarket.Data;
+using jerseyMarket.Middleware;
 using jerseyMarket.Services;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -53,6 +54,7 @@ builder.Services.AddRateLimiter(options =>
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 builder.Services.AddCors(o => o.AddPolicy("spa", p => p
@@ -68,9 +70,13 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseExceptionHandler();
+
 app.UseHttpsRedirection();
 
 app.UseCors("spa");
+
+app.UseRateLimiter();
 
 app.UseAuthentication();
 
