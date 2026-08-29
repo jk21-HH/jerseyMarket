@@ -1,0 +1,39 @@
+<div class="auth-card">
+  <h2>Log in</h2>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <label>
+      Username
+      <input
+        type="text"
+        formControlName="username"
+        [class.invalid]="form.controls.username.touched && form.controls.username.invalid"
+      />
+    </label>
+    @if (form.controls.username.touched && form.controls.username.invalid) {
+      <p class="field-error">Username must be 8-20 characters.</p>
+    }
+
+    <label>
+      Password
+      <input
+        type="password"
+        formControlName="password"
+        [class.invalid]="form.controls.password.touched && form.controls.password.invalid"
+      />
+    </label>
+    @if (form.controls.password.touched && form.controls.password.invalid) {
+      <p class="field-error">Password must be at least 8 characters.</p>
+    }
+
+    @if (error()) {
+      <p class="form-error">{{ error() }}</p>
+    }
+
+    <button type="submit" [disabled]="submitting()">
+      {{ submitting() ? 'Logging in...' : 'Log in' }}
+    </button>
+  </form>
+
+  <p class="switch-link">Don't have an account? <a routerLink="/register">Register</a></p>
+</div>
