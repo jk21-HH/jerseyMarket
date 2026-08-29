@@ -1,0 +1,272 @@
+{
+  "info": {
+    "_postman_id": "b4687b45-740c-446d-8edf-77674f1860e8",
+    "name": "jerseyMarket",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "18994407"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\": \"testuser1\",\r\n    \"password\": \"TestPass123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5098/api/Auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5098",
+              "path": [
+                "api",
+                "Auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\": \"testuser1\",\r\n    \"password\": \"TestPass123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5098/api/Auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5098",
+              "path": [
+                "api",
+                "Auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Berear",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\": \"testuser1\",\r\n    \"password\": \"TestPass123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5098/api/Auth/logout",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5098",
+              "path": [
+                "api",
+                "Auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "regenerate-tokens",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": " {\r\n    \"userId\": 1,\r\n    \"refreshToken\": \"kJ8f3n2Qx9pL7mR4vT1sY6wZ0aB5cD8eF2gH4iJ6kL8mN0oP==\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5098/api/Auth/regenerate-tokens",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5098",
+              "path": [
+                "api",
+                "Auth",
+                "regenerate-tokens"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "GetAllProducts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5098/api/Products/",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5098",
+              "path": [
+                "api",
+                "Products",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "CategoryName",
+                  "value": "Basketball",
+                  "disabled": true
+                },
+                {
+                  "key": "ProductName",
+                  "value": "Sample Product",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetSingleProduct",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5098/api/Products/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5098",
+              "path": [
+                "api",
+                "Products",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CreateProduct",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6InRlc3R1c2VyMSIsIm5hbWVpZCI6IjEiLCJleHAiOjE3ODgwNDE3NjIsImlzcyI6Ik15QXBpIiwiYXVkIjoiTXlDbGllbnQifQ.NUbLx6ftNEb3XG7IHR6Y6UDBRsAZYCORidJcSGOyg7pmuYis-ZXRKSdr0Zsc4qQ8J-XdJSgQf8ODhHZ6fC2Zjw",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "  {\r\n    \"productName\": \"Sample Product\",\r\n    \"price\": 34.99,\r\n    \"unitsInStock\": 15,\r\n    \"categoryId\": 4\r\n  }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5098/api/Products/",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5098",
+              "path": [
+                "api",
+                "Products",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "UpdateProduct",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Berear",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "  {\r\n    \"productName\": \"Updated Product\",\r\n    \"price\": 34.99,\r\n    \"unitsInStock\": 15,\r\n    \"categoryId\": 8\r\n  }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5098/api/Products/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5098",
+              "path": [
+                "api",
+                "Products",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
