@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { Auth } from '../auth';
+import { getErrorMessage } from '../../shared/http-error';
 
 @Component({
   selector: 'app-register',
@@ -40,7 +41,7 @@ export class Register {
         this.router.navigateByUrl('/login');
       },
       error: (err) => {
-        this.error.set(err.error ?? 'Registration failed.');
+        this.error.set(getErrorMessage(err));
         this.submitting.set(false);
       },
     });
