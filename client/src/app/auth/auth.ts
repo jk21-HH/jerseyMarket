@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, catchError, map, of, tap } from 'rxjs';
+import { Observable, catchError, finalize, map, of, share, tap } from 'rxjs';
 
 import {
   AccessTokenRefreshTokenResponse,
@@ -51,6 +51,17 @@ export class Auth {
 
   // called once on app startup to silently restore a session after a page reload
   restoreSession(): Observable<boolean> {
+    return this.refreshAccessToken();
+  }
+
+  // shared across callers so concurrent 401s trigger a single regenerate-tokens call, not one each
+  private refreshInProgress$: Observable<boolean> | null = null;
+
+  refreshAccessToken(): Observable<boolean> {
+    if (this.refreshInProgress$) {
+      return this.refreshInProgress$;
+    }
+
     const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
     const userId = localStorage.getItem(USER_ID_KEY);
 
@@ -58,7 +69,7 @@ export class Auth {
       return of(false);
     }
 
-    return this.http
+    this.refreshInProgress$ = this.http
       .post<AccessTokenRefreshTokenResponse>(`${this.baseUrl}/regenerate-tokens`, {
         userId: Number(userId),
         refreshToken,
@@ -70,7 +81,11 @@ export class Auth {
           this.clearSession();
           return of(false);
         }),
+        finalize(() => (this.refreshInProgress$ = null)),
+        share(),
       );
+
+    return this.refreshInProgress$;
   }
 
   get accessToken(): string | null {
