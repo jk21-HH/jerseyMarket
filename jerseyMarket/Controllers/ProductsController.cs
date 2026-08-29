@@ -1,6 +1,7 @@
 ﻿using jerseyMarket.Dtos;
 using jerseyMarket.Enums;
 using jerseyMarket.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -17,6 +18,7 @@ namespace jerseyMarket.Controllers
             return Ok(Products);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<GetProductResponseDto>> CreateProduct(CreateProductRequestDto Product)
         {
@@ -30,6 +32,7 @@ namespace jerseyMarket.Controllers
             };
         }
 
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<ActionResult<GetProductResponseDto>> UpdateProduct(int id, UpdateProductRequestDto Product)
         {
