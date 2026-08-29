@@ -7,6 +7,7 @@ namespace jerseyMarket.Services
     public interface IProductService
     {
         Task<List<GetProductResponseDto>> GetAllAsync(string? productName = null, string? categoryName = null, CancellationToken cancellationToken = default); // add the cancellationToken parameter to the method signature - if backend is abrupted it saves resources
+        Task<(SingleProductResult Result, GetProductResponseDto? Product)> GetSingleAsync(int id, CancellationToken cancellationToken); // add the cancellationToken parameter to the method signature - if backend is abrupted it saves resources
         Task<(SingleProductResult Result, GetProductResponseDto? Product)> AddAsync(CreateProductRequestDto Product);
         Task<(SingleProductResult Result, GetProductResponseDto? Product)> UpdateAsync(int id, UpdateProductRequestDto Product);
     }

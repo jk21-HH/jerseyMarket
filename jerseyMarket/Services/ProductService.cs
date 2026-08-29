@@ -37,6 +37,29 @@ namespace jerseyMarket.Services
                 .ToListAsync(cancellationToken);
         }
 
+        public async Task<(SingleProductResult Result, GetProductResponseDto? Product)> GetSingleAsync(int id, CancellationToken cancellationToken) // add the cancellationToken parameter to the method signature - if backend is abrupted it saves resources
+        {
+            var product = await _context.Products
+                .Where(p => p.ProductId == id)
+                .Select(p => new GetProductResponseDto
+                {
+                    ProductId = p.ProductId,
+                    ProductName = p.ProductName,
+                    Price = p.Price,
+                    UnitsInStock = p.UnitsInStock,
+                    CategoryId = p.CategoryId,
+                    CategoryName = p.Category.CategoryName
+                })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (product is null)
+            {
+                return (SingleProductResult.ProductNotFound, null);
+            }
+
+            return (SingleProductResult.Success, product);
+        }
+
         public async Task<(SingleProductResult Result, GetProductResponseDto? Product)> AddAsync(CreateProductRequestDto product)
         {
             // FindAsync (not AnyAsync) so we already have the entity for CategoryName below, no second query needed

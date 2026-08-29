@@ -17,3 +17,8 @@ export interface AccessTokenRefreshTokenResponse {
   accessToken: string;
   refreshToken: string;
 }
+
+export interface RefreshTokenRequest {
+  userId: number;
+  refreshToken: string;
+}

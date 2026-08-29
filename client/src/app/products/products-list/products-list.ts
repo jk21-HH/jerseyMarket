@@ -1,17 +1,22 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
+import { Auth } from '../../auth/auth';
 import { Product } from '../product.model';
 import { Products } from '../products';
 
 @Component({
   selector: 'app-products-list',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './products-list.html',
   styleUrl: './products-list.css',
 })
 export class ProductsList {
   private readonly productsService = inject(Products);
+  private readonly authService = inject(Auth);
+
+  protected readonly isAuthenticated = this.authService.isAuthenticated;
 
   protected readonly products = signal<Product[]>([]);
   protected readonly loading = signal(false);
