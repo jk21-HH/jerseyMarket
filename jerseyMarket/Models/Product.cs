@@ -2,6 +2,7 @@
 
 namespace jerseyMarket.Models
 {
+    [Index(nameof(ProductName), IsUnique = true)]
     public class Product
     {
         public int ProductId { get; set; }

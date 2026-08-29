@@ -41,6 +41,7 @@ namespace jerseyMarket.Controllers
             {
                 SingleProductResult.Success => Ok(createdProduct),
                 SingleProductResult.CategoryNotFound => NotFound($"Category with ID {Product.CategoryId} not found."),
+                SingleProductResult.ProductNameTaken => Conflict($"Product name '{Product.ProductName}' is already taken."),
                 _ => StatusCode(500) // unreachable unless the enum grows and a case is missed
             };
         }

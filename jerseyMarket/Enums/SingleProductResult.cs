@@ -5,5 +5,6 @@
         Success,
         CategoryNotFound,
         ProductNotFound,
+        ProductNameTaken,
     }
 }

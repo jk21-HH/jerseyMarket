@@ -2,7 +2,9 @@
 using jerseyMarket.Dtos;
 using jerseyMarket.Enums;
 using jerseyMarket.Models;
+
 using Microsoft.EntityFrameworkCore;
+
 
 namespace jerseyMarket.Services
 {
@@ -11,6 +13,12 @@ namespace jerseyMarket.Services
     {
         public async Task<List<GetProductResponseDto>> GetAllAsync(string? productName = null, string? categoryName = null, CancellationToken cancellationToken = default) // add the cancellationToken parameter to the method signature - if backend is abrupted it saves resources
         {
+            // SELECT Products.*, Categories.*
+            // FROM Products
+            // INNER JOIN Categories ON Products.CategoryId = Categories.CategoryId
+            // WHERE Products.ProductName LIKE '%' + @productName + '%'
+            // AND Categories.CategoryName LIKE '%' + @categoryName+ '%'
+
             var query = _context.Products.Include(p => p.Category).AsQueryable();
 
             // does not filter if one of the parameters is null or empty, so we can call this method with no parameters to get all products
@@ -21,7 +29,7 @@ namespace jerseyMarket.Services
 
             if (!string.IsNullOrWhiteSpace(categoryName))
             {
-                query = query.Where(p => p.Category.CategoryName == categoryName);
+                query = query.Where(p => p.Category.CategoryName.Contains(categoryName));
             }
 
             return await query
@@ -39,6 +47,10 @@ namespace jerseyMarket.Services
 
         public async Task<(SingleProductResult Result, GetProductResponseDto? Product)> GetSingleAsync(int id, CancellationToken cancellationToken) // add the cancellationToken parameter to the method signature - if backend is abrupted it saves resources
         {
+            // SELECT TOP(1) Products.ProductId, Products.ProductName, Products.Price, Products.UnitsInStock, Products.CategoryId, Categories.CategoryName
+            // FROM Products INNER JOIN Categories ON Products.CategoryId = Categories.CategoryId
+            // WHERE Products.ProductId = @id
+
             var product = await _context.Products
                 .Where(p => p.ProductId == id)
                 .Select(p => new GetProductResponseDto
@@ -62,7 +74,17 @@ namespace jerseyMarket.Services
 
         public async Task<(SingleProductResult Result, GetProductResponseDto? Product)> AddAsync(CreateProductRequestDto product)
         {
-            // FindAsync (not AnyAsync) so we already have the entity for CategoryName below, no second query needed
+            // SELECT CASE WHEN EXISTS (SELECT 1 FROM Products WHERE ProductName = @product_ProductName) THEN 1 ELSE 0 END
+
+            if (await _context.Products.AnyAsync(p => p.ProductName == product.ProductName))
+            {
+                return (SingleProductResult.ProductNameTaken, null);
+            }
+
+            // SELECT TOP(1) *
+            // FROM Categories
+            // WHERE CategoryId = @product_CategoryId
+
             var category = await _context.Categories.FindAsync(product.CategoryId);
 
             if (category is null)
@@ -78,6 +100,9 @@ namespace jerseyMarket.Services
                 UnitsInStock = product.UnitsInStock!.Value,
                 CategoryId = product.CategoryId!.Value,
             };
+
+            // INSERT INTO Products(ProductName, Price, UnitsInStock, CategoryId)
+            // VALUES(@ProductName, @Price, @UnitsInStock, @CategoryId)
 
             _context.Products.Add(newProduct);
 
@@ -96,6 +121,10 @@ namespace jerseyMarket.Services
 
         public async Task<(SingleProductResult Result, GetProductResponseDto? Product)> UpdateAsync(int id, UpdateProductRequestDto Product)
         {
+            // SELECT TOP(1) *
+            // FROM Categories
+            // WHERE CategoryId = @product_CategoryId
+
             var currentProduct = await _context.Products.FindAsync(id);
 
             // if the product is not found, we return ProductNotFound and null for the product
@@ -111,6 +140,10 @@ namespace jerseyMarket.Services
             {
                 return (SingleProductResult.CategoryNotFound, null);
             }
+
+            // UPDATE Products
+            // SET ProductName = @p0, Price = @p1, UnitsInStock = @p2, CategoryId = @p3
+            // WHERE ProductId = @p4
 
             currentProduct.ProductName = Product.ProductName;
             // Safe to unwrap: [Required] on the DTO already rejected null before the action ran
