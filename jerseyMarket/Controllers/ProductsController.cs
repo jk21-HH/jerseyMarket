@@ -12,9 +12,9 @@ namespace jerseyMarket.Controllers
     public class ProductsController(IProductService service) : ControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<List<GetProductResponseDto>>> GetAllProducts([FromQuery] string? productName = null, [FromQuery] string? categoryName = null)
+        public async Task<ActionResult<List<GetProductResponseDto>>> GetAllProducts([FromQuery] string? productName = null, [FromQuery] string? categoryName = null, CancellationToken cancellationToken = default) // add the cancellationToken parameter to the method signature - if backend is abrupted it saves resources
         {
-            var Products = await service.GetAllAsync(productName, categoryName);
+            var Products = await service.GetAllAsync(productName, categoryName, cancellationToken);
             return Ok(Products);
         }
 

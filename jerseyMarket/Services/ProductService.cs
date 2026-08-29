@@ -9,7 +9,7 @@ namespace jerseyMarket.Services
     // I use service to handle the buisness logic outside of controller -> clean code
     public class ProductService (AppDbContext _context) : IProductService
     {
-        public async Task<List<GetProductResponseDto>> GetAllAsync(string? productName = null, string? categoryName = null)
+        public async Task<List<GetProductResponseDto>> GetAllAsync(string? productName = null, string? categoryName = null, CancellationToken cancellationToken = default) // add the cancellationToken parameter to the method signature - if backend is abrupted it saves resources
         {
             var query = _context.Products.Include(p => p.Category).AsQueryable();
 
@@ -34,7 +34,7 @@ namespace jerseyMarket.Services
                     CategoryId = p.CategoryId,
                     CategoryName = p.Category.CategoryName
                 })
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
         }
 
         public async Task<(SingleProductResult Result, GetProductResponseDto? Product)> AddAsync(CreateProductRequestDto product)
