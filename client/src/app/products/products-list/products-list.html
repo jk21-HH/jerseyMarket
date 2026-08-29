@@ -34,7 +34,11 @@
           <td>{{ product.unitsInStock }}</td>
           <td>{{ product.categoryName }}</td>
           @if (isAuthenticated()) {
-            <td><a [routerLink]="['/products', product.productId, 'edit']">Edit</a></td>
+            <td>
+              <a class="edit-link" [routerLink]="['/products', product.productId, 'edit']"
+                >Edit</a
+              >
+            </td>
           }
         </tr>
       } @empty {

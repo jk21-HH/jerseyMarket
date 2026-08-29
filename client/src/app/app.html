@@ -5,6 +5,8 @@
   @if (!isAuthenticated()) {
     <a routerLink="/login" routerLinkActive="active">Login</a>
     <a routerLink="/register" routerLinkActive="active">Register</a>
+  } @else {
+    <a routerLink="/logout">Logout</a>
   }
 </nav>
 
