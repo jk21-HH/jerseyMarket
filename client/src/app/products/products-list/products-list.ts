@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { Auth } from '../../auth/auth';
+import { getErrorMessage } from '../../shared/http-error';
 import { Product } from '../product.model';
 import { Products } from '../products';
 
@@ -39,7 +40,7 @@ export class ProductsList {
         this.loading.set(false);
       },
       error: (err) => {
-        this.error.set(err.message);
+        this.error.set(getErrorMessage(err));
         this.loading.set(false);
       },
     });

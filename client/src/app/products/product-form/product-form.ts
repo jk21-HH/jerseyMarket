@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Products } from '../products';
+import { getErrorMessage } from '../../shared/http-error';
 
 @Component({
   selector: 'app-product-form',
@@ -60,7 +61,7 @@ export class ProductForm {
         this.router.navigateByUrl('/');
       },
       error: (err) => {
-        this.error.set(err.error ?? 'Save failed.');
+        this.error.set(getErrorMessage(err));
         this.submitting.set(false);
       },
     });
