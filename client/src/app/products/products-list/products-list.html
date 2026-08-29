@@ -1,0 +1,38 @@
+<div class="filters">
+  <input [(ngModel)]="productNameFilter" placeholder="Filter by product name" />
+  <input [(ngModel)]="categoryNameFilter" placeholder="Filter by category name" />
+  <button (click)="search()">Search</button>
+</div>
+
+@if (loading()) {
+  <p>Loading...</p>
+} @else if (error()) {
+  <p>Error: {{ error() }}</p>
+} @else {
+  <table>
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Units In Stock</th>
+        <th>Category</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (product of products(); track product.productId) {
+        <tr>
+          <td>{{ product.productId }}</td>
+          <td>{{ product.productName }}</td>
+          <td>{{ product.price }}</td>
+          <td>{{ product.unitsInStock }}</td>
+          <td>{{ product.categoryName }}</td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="5">No products found.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
