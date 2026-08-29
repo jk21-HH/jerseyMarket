@@ -1,0 +1,6 @@
+@jerseyMarket_HostAddress = http://localhost:5098
+
+GET {{jerseyMarket_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
