@@ -18,6 +18,19 @@ namespace jerseyMarket.Controllers
             return Ok(Products);
         }
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<GetProductResponseDto>> GetProduct(int id, CancellationToken cancellationToken) // add the cancellationToken parameter to the method signature - if backend is abrupted it saves resources
+        {
+            var (result, Product) = await service.GetSingleAsync(id, cancellationToken);
+
+            return result switch
+            {
+                SingleProductResult.Success => Ok(Product),
+                SingleProductResult.ProductNotFound => NotFound($"Product with ID {id} not found."),
+                _ => StatusCode(500) // unreachable unless the enum grows and a case is missed
+            };
+        }
+
         [Authorize]
         [HttpPost]
         public async Task<ActionResult<GetProductResponseDto>> CreateProduct(CreateProductRequestDto Product)

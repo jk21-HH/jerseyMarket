@@ -2,6 +2,9 @@
   <input [(ngModel)]="productNameFilter" placeholder="Filter by product name" />
   <input [(ngModel)]="categoryNameFilter" placeholder="Filter by category name" />
   <button (click)="search()">Search</button>
+  @if (isAuthenticated()) {
+    <a class="new-button" routerLink="/products/new">New Product</a>
+  }
 </div>
 
 @if (loading()) {
@@ -17,6 +20,9 @@
         <th>Price</th>
         <th>Units In Stock</th>
         <th>Category</th>
+        @if (isAuthenticated()) {
+          <th></th>
+        }
       </tr>
     </thead>
     <tbody>
@@ -27,10 +33,13 @@
           <td>{{ product.price }}</td>
           <td>{{ product.unitsInStock }}</td>
           <td>{{ product.categoryName }}</td>
+          @if (isAuthenticated()) {
+            <td><a [routerLink]="['/products', product.productId, 'edit']">Edit</a></td>
+          }
         </tr>
       } @empty {
         <tr>
-          <td colspan="5">No products found.</td>
+          <td [attr.colspan]="isAuthenticated() ? 6 : 5">No products found.</td>
         </tr>
       }
     </tbody>

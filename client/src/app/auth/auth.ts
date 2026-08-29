@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, map, of, tap } from 'rxjs';
 
 import {
   AccessTokenRefreshTokenResponse,
@@ -8,8 +8,10 @@ import {
   UserRegisterRequest,
   UserResponse,
 } from './auth.model';
+import { getUserIdFromToken } from './jwt';
 
 const REFRESH_TOKEN_KEY = 'refreshToken';
+const USER_ID_KEY = 'userId';
 
 @Injectable({
   providedIn: 'root',
@@ -27,21 +29,52 @@ export class Auth {
   }
 
   login(request: UserLoginRequest): Observable<AccessTokenRefreshTokenResponse> {
-    return this.http.post<AccessTokenRefreshTokenResponse>(`${this.baseUrl}/login`, request).pipe(
-      tap((res) => {
-        this.accessTokenSignal.set(res.accessToken);
-        // refresh token persists across reloads so the session can be restored via regenerate-tokens
-        localStorage.setItem(REFRESH_TOKEN_KEY, res.refreshToken);
-      }),
-    );
+    return this.http
+      .post<AccessTokenRefreshTokenResponse>(`${this.baseUrl}/login`, request)
+      .pipe(tap((res) => this.applySession(res)));
   }
 
   logout(): void {
     this.accessTokenSignal.set(null);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(USER_ID_KEY);
+  }
+
+  // called once on app startup to silently restore a session after a page reload
+  restoreSession(): Observable<boolean> {
+    const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+    const userId = localStorage.getItem(USER_ID_KEY);
+
+    if (!refreshToken || !userId) {
+      return of(false);
+    }
+
+    return this.http
+      .post<AccessTokenRefreshTokenResponse>(`${this.baseUrl}/regenerate-tokens`, {
+        userId: Number(userId),
+        refreshToken,
+      })
+      .pipe(
+        tap((res) => this.applySession(res)),
+        map(() => true),
+        catchError(() => {
+          this.logout();
+          return of(false);
+        }),
+      );
   }
 
   get accessToken(): string | null {
     return this.accessTokenSignal();
+  }
+
+  private applySession(res: AccessTokenRefreshTokenResponse): void {
+    this.accessTokenSignal.set(res.accessToken);
+    localStorage.setItem(REFRESH_TOKEN_KEY, res.refreshToken);
+
+    const userId = getUserIdFromToken(res.accessToken);
+    if (userId !== null) {
+      localStorage.setItem(USER_ID_KEY, String(userId));
+    }
   }
 }

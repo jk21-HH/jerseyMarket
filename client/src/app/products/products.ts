@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { Product } from './product.model';
+import { Product, ProductRequest } from './product.model';
 
 @Injectable({
   providedIn: 'root',
@@ -21,5 +21,17 @@ export class Products {
     }
 
     return this.http.get<Product[]>(this.baseUrl, { params });
+  }
+
+  getById(id: number): Observable<Product> {
+    return this.http.get<Product>(`${this.baseUrl}/${id}`);
+  }
+
+  create(request: ProductRequest): Observable<Product> {
+    return this.http.post<Product>(this.baseUrl, request);
+  }
+
+  update(id: number, request: ProductRequest): Observable<Product> {
+    return this.http.put<Product>(`${this.baseUrl}/${id}`, request);
   }
 }
